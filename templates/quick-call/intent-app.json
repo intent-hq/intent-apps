@@ -1,0 +1,19 @@
+{
+  "manifestVersion": 1,
+  "id": "quick-call",
+  "name": "Quick Call",
+  "version": "0.1.0",
+  "description": "Ask a model a question and see the answer.",
+  "icon": "icon.png",
+  "entry": "index.html",
+  "permissions": {
+    "level": 2,
+    "features": ["models", "notifications"]
+  },
+  "window": {
+    "width": 720,
+    "height": 640,
+    "minWidth": 420,
+    "minHeight": 400
+  }
+}
