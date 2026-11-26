@@ -21,6 +21,14 @@ export function compareBytes(a, b) {
 export function compareUtf8(a, b) {
     return compareBytes(utf8(a), utf8(b));
 }
+/** Control characters (contract "Validation rules"): C0, DEL and C1. */
+export const CONTROL_RE = /[\u0000-\u001f\u007f-\u009f]/;
+/** Printable ASCII (contract "Validation rules"): U+0021–U+007E, no space. */
+export const PRINTABLE_ASCII_RE = /^[\x21-\x7e]*$/;
+/** "After trim": remove leading and trailing Unicode White_Space (not String.prototype.trim). */
+export function trimWhiteSpace(s) {
+    return s.replace(/^\p{White_Space}+|\p{White_Space}+$/gu, "");
+}
 /** Count Unicode code points (what the contract calls "chars"). */
 export function charCount(s) {
     let n = 0;

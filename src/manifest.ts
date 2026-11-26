@@ -1,4 +1,4 @@
-import { bundlePathProblem, charCount, utf8Length } from "./paths.js";
+import { bundlePathProblem, charCount, CONTROL_RE, PRINTABLE_ASCII_RE, trimWhiteSpace, utf8Length } from "./paths.js";
 import {
   FEATURES,
   LIMITS,
@@ -41,16 +41,17 @@ const PERMISSION_KEYS = new Set(["level", "features"]);
 const WINDOW_KEYS = new Set(["width", "height", "minWidth", "minHeight", "resizable", "alwaysOnTop"]);
 const PUBLISHER_KEYS = new Set(["name", "url", "keyId"]);
 
-/** 1–256 printable ASCII chars (U+0020–U+007E): `publisher.keyId` and the signature `keyId`. */
-export const KEY_ID_RE = /^[\x20-\x7e]{1,256}$/;
+/** 1–256 printable ASCII chars (U+0021–U+007E): `publisher.keyId` and the signature `keyId`. */
+export const KEY_ID_RE = /^[\x21-\x7e]{1,256}$/;
 
 /**
- * An absolute https URL of at most 2048 chars (`publisher.url`, `updateUrl`).
- * Whitespace and control characters are refused, so the string is stored as written.
+ * An https URL (`publisher.url`, `updateUrl`): printable ASCII only, at most
+ * 2048 chars, the lowercase prefix `https://`, and an absolute WHATWG URL
+ * with a non-empty host. The string is stored as written.
  */
 export function httpsUrlProblem(v: string): string | null {
   if (v.length < 1 || v.length > LIMITS.maxUrlChars) return `must be 1–${LIMITS.maxUrlChars} chars`;
-  if (/[\s\u0000-\u001f\u007f-\u009f]/.test(v)) return "must not contain whitespace or control characters";
+  if (!PRINTABLE_ASCII_RE.test(v)) return "must be printable ASCII (no spaces)";
   if (!v.startsWith("https://")) return 'must start with "https://"';
   let u: URL;
   try {
@@ -97,8 +98,6 @@ class Invalid extends Error {
   }
 }
 
-/** Unicode general category Cc: U+0000–U+001F and U+007F–U+009F. */
-const CONTROL_RE = /[\u0000-\u001f\u007f-\u009f]/;
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === "object" && !Array.isArray(v);
@@ -153,7 +152,7 @@ function normalize(doc: unknown, files: Set<string> | null): NormalizedManifest 
   if (!APP_ID_RE.test(id)) throw new Invalid("/id", "must match ^[a-z0-9](?:[a-z0-9-]{1,62})[a-z0-9]$");
 
   const name = str(doc.name, "/name");
-  const nameLen = charCount(name.trim());
+  const nameLen = charCount(trimWhiteSpace(name));
   if (nameLen < 1 || nameLen > 64) throw new Invalid("/name", "must be 1–64 chars after trim");
   if (CONTROL_RE.test(name)) throw new Invalid("/name", "must not contain control characters");
 
@@ -220,7 +219,7 @@ function normalize(doc: unknown, files: Set<string> | null): NormalizedManifest 
     checkKeys(p, PUBLISHER_KEYS, ["publisher"]);
     if (!("name" in p)) throw new Invalid("/publisher/name", 'missing required key "name"');
     const pName = str(p.name, "/publisher/name");
-    const pLen = charCount(pName.trim());
+    const pLen = charCount(trimWhiteSpace(pName));
     if (pLen < 1 || pLen > 128) throw new Invalid("/publisher/name", "must be 1–128 chars after trim");
     if (CONTROL_RE.test(pName)) throw new Invalid("/publisher/name", "must not contain control characters");
     let url: string | null = null;

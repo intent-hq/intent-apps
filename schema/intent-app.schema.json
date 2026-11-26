@@ -226,13 +226,13 @@
     "httpsUrl": {
       "type": "string",
       "maxLength": 2048,
-      "pattern": "^https://[^\\s/?#\\u0000-\\u001f\\u007f-\\u009f]+[^\\s\\u0000-\\u001f\\u007f-\\u009f]*$",
-      "description": "Absolute https URL, at most 2048 chars, no whitespace or control characters."
+      "pattern": "^https://(?![/?#])[\\u0021-\\u007e]+$",
+      "description": "Printable ASCII https URL with a host, at most 2048 chars."
     },
     "keyId": {
       "type": "string",
-      "pattern": "^[\\u0020-\\u007e]{1,256}$",
-      "description": "1–256 printable ASCII chars, opaque."
+      "pattern": "^[\\u0021-\\u007e]{1,256}$",
+      "description": "1–256 printable ASCII chars (U+0021–U+007E), opaque."
     }
   }
 }

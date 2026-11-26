@@ -1286,7 +1286,7 @@
         },
         "publisher": {
           "name": "P",
-          "keyId": "~ !kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+          "keyId": "~!kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
         }
       },
       "valid": true,
@@ -1699,6 +1699,172 @@
       "valid": false,
       "code": "invalid-manifest",
       "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-key-id-space",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": "a b"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/keyId",
+      "schemaValid": false,
+      "note": "Printable ASCII is U+0021–U+007E: no space."
+    },
+    {
+      "name": "update-url-non-ascii",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://exämple.com/app"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-uppercase-scheme",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "HTTPS://example.com/app"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-extra-slash",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https:///path"
+      },
+      "valid": true,
+      "schemaValid": false,
+      "note": "WHATWG URL parsing reads https:///path as host \"path\", so the contract rule accepts it. The schema is stricter (no / right after https://)."
+    },
+    {
+      "name": "name-ideographic-space-blank",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "　 ",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/name",
+      "schemaValid": true,
+      "note": "U+3000 and U+2003 are White_Space: blank after trim."
+    },
+    {
+      "name": "name-bom-is-not-white-space",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "﻿",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        }
+      },
+      "valid": true,
+      "schemaValid": true,
+      "note": "U+FEFF is not Unicode White_Space (JavaScript trim() strips it; do not use trim())."
+    },
+    {
+      "name": "name-64-code-points-astral",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        }
+      },
+      "valid": true,
+      "schemaValid": true,
+      "note": "64 code points (128 UTF-16 units)."
+    },
+    {
+      "name": "name-65-code-points-astral",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/name",
       "schemaValid": false
     }
   ]

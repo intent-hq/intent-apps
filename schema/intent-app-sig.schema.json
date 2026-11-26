@@ -23,7 +23,7 @@
     },
     "keyId": {
       "type": "string",
-      "pattern": "^[\\u0020-\\u007e]{1,256}$"
+      "pattern": "^[\\u0021-\\u007e]{1,256}$"
     },
     "bundleHash": {
       "type": "string",

@@ -58,6 +58,22 @@ async function rejects(p: () => Promise<unknown> | unknown, code: string, msg: s
   throw new CheckFailed(`${msg}: expected rejection with ${code}, but it resolved`);
 }
 
+function syncThrows(fn: () => unknown, code: string, msg: string): void {
+  let threw = false;
+  let result: unknown;
+  try {
+    result = fn();
+  } catch (e) {
+    threw = true;
+    const err = toIntentError(e);
+    if (err.code !== code) throw new CheckFailed(`${msg}: expected code ${code}, got ${err.code} (${err.message})`);
+  }
+  if (!threw) {
+    if (result instanceof Promise) result.catch(() => {});
+    throw new CheckFailed(`${msg}: expected a synchronous throw with ${code}`);
+  }
+}
+
 type Check = { name: string; run: () => Promise<void> };
 
 export async function runCompliance(bridge: IntentBridge, opts: ComplianceOptions): Promise<ComplianceResult[]> {
@@ -143,6 +159,7 @@ export async function runCompliance(bridge: IntentBridge, opts: ComplianceOption
     await rejects(() => bridge.storage.set("", 1), "invalid-key", "empty key");
     await rejects(() => bridge.storage.set(`${pfx}a\u0000b`, 1), "invalid-key", "NUL in key");
     await rejects(() => bridge.storage.set(`${pfx}a\u007fb`, 1), "invalid-key", "DEL in key");
+    await rejects(() => bridge.storage.set(`${pfx}a\u0085b`, 1), "invalid-key", "C1 control in key");
     await rejects(() => bridge.storage.get(`${pfx}a\nb`), "invalid-key", "newline in get");
     const k256 = pfx + "é".repeat((256 - pfx.length) / 2) + (pfx.length % 2 === 1 ? "x" : "");
     assert(new TextEncoder().encode(k256).length === 256, "test key length");
@@ -173,7 +190,6 @@ export async function runCompliance(bridge: IntentBridge, opts: ComplianceOption
     ["window.setAlwaysOnTop", "alwaysOnTop", () => bridge.window.setAlwaysOnTop(false)],
     ["shortcuts.register", "globalShortcuts", () => bridge.shortcuts.register("CommandOrControl+Alt+Shift+F12")],
     ["shortcuts.unregisterAll", "globalShortcuts", () => bridge.shortcuts.unregisterAll()],
-    ["on(shortcut)", "globalShortcuts", async () => bridge.on("shortcut", () => {})()],
   ];
   for (const [name, feature, call] of hostGated) {
     check(`${name} ${"is refused without"} ${feature}`, async () => {
@@ -260,11 +276,34 @@ export async function runCompliance(bridge: IntentBridge, opts: ComplianceOption
     assert(typeof r.text === "string" && typeof r.model === "string", "types");
   });
 
-  check("on() rejects unknown event types with not-supported and returns an unsubscribe function", async () => {
-    await rejects(() => bridge.on("no-such-event" as "shortcut", () => {}), "not-supported", "unknown event");
+  check("raw rejections are plain { code, message, data? } objects", async () => {
+    let raw: unknown;
+    try {
+      await bridge.storage.set("", 1);
+    } catch (e) {
+      raw = e;
+    }
+    assert(raw !== undefined, "storage.set with an empty key resolved");
+    assert(raw !== null && typeof raw === "object" && !(raw instanceof Error), "rejection is not a plain object");
+    const o = raw as Record<string, unknown>;
+    assert(Object.keys(o).every((k) => k === "code" || k === "message" || k === "data"), `extra keys ${Object.keys(o)}`);
+    eq(o.code, "invalid-key", "code");
+    assert(typeof o.message === "string", "message");
+    if ("data" in o) {
+      assert(o.data !== null && typeof o.data === "object" && Object.keys(o.data as object).length > 0, "data present but empty");
+    }
+  });
+
+  check("on() throws synchronously for unknown types and returns an unsubscribe function", async () => {
+    syncThrows(() => bridge.on("no-such-event" as "shortcut", () => {}), "not-supported", "unknown event");
     const off = bridge.on("session-ended", () => {});
     assert(typeof off === "function", "unsubscribe is a function");
     off();
+  });
+
+  check("on(shortcut) throws forbidden synchronously without globalShortcuts", async () => {
+    if (has("globalShortcuts")) throw new Skip("globalShortcuts is approved");
+    syncThrows(() => bridge.on("shortcut", () => {}), "forbidden", "on(shortcut)");
   });
 
   check("shortcuts register and unregister", async () => {
@@ -276,9 +315,31 @@ export async function runCompliance(bridge: IntentBridge, opts: ComplianceOption
       if (toIntentError(e).code === "shortcut-unavailable") throw new Skip(`${acc} is taken on this machine`);
       throw e;
     }
+    eq(await bridge.shortcuts.register(acc), undefined, "registering a held accelerator again is a no-op");
     eq(await bridge.shortcuts.unregister(acc), true, "unregister registered");
     eq(await bridge.shortcuts.unregister(acc), false, "unregister again");
     await bridge.shortcuts.unregisterAll();
+  });
+
+  check("an 11th distinct shortcut is invalid-params", async () => {
+    if (!has("globalShortcuts")) throw new Skip("globalShortcuts not approved");
+    if (!opts.destructive) throw new Skip("destructive is off");
+    await bridge.shortcuts.unregisterAll();
+    try {
+      let held = 0;
+      for (let i = 1; i <= 24 && held < 10; i++) {
+        try {
+          await bridge.shortcuts.register(`CommandOrControl+Alt+Shift+F${i}`);
+          held++;
+        } catch (e) {
+          if (toIntentError(e).code !== "shortcut-unavailable") throw e;
+        }
+      }
+      if (held < 10) throw new Skip("not enough free accelerators on this machine");
+      await rejects(() => bridge.shortcuts.register("CommandOrControl+Alt+Shift+Insert"), "invalid-params", "11th shortcut");
+    } finally {
+      await bridge.shortcuts.unregisterAll();
+    }
   });
 
   check("window.setAlwaysOnTop resolves undefined", async () => {

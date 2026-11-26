@@ -11,7 +11,9 @@ async function codeOf(p) {
   try {
     await p;
   } catch (e) {
-    assert.ok(e instanceof IntentError, `not an IntentError: ${e}`);
+    assert.ok(e !== null && typeof e === "object" && !(e instanceof Error), `raw rejection must be a plain object: ${e}`);
+    assert.equal(typeof e.code, "string");
+    assert.equal(typeof e.message, "string");
     return e;
   }
   assert.fail("expected a rejection");
@@ -203,11 +205,25 @@ test("shortcuts: events, taken accelerators and the limit of 10", async () => {
   assert.deepEqual(pressed, ["Alt+K"]);
   assert.equal((await codeOf(b.shortcuts.register("Alt+T"))).code, "shortcut-unavailable");
   for (let i = 1; i <= 9; i++) await b.shortcuts.register(`Alt+F${i}`);
-  assert.equal((await codeOf(b.shortcuts.register("Alt+F10"))).code, "shortcut-unavailable");
+  assert.equal((await codeOf(b.shortcuts.register("Alt+F10"))).code, "invalid-params");
   await b.shortcuts.register("Alt+K");
   await b.window.setAlwaysOnTop(true);
   assert.equal(b.mock.alwaysOnTop, true);
   assert.throws(() => createMockBridge({ level: 1 }).on("shortcut", () => {}), (e) => e.code === "forbidden");
+});
+
+test("raw errors omit empty data; the client turns them into IntentError", async () => {
+  const b = createMockBridge();
+  const raw = await codeOf(b.storage.set("", 1));
+  assert.deepEqual(Object.keys(raw).sort(), ["code", "message"]);
+  const withData = await codeOf(b.storage.list({ limit: 0 }));
+  assert.deepEqual(Object.keys(withData).sort(), ["code", "data", "message"]);
+  const c = wrapBridge(b, true);
+  await assert.rejects(c.storage.set("", 1), (e) => e instanceof IntentError && e.code === "invalid-key");
+  assert.throws(() => c.on("nope", () => {}), (e) => e instanceof IntentError && e.code === "not-supported");
+  assert.equal((await codeOf(b.storage.set("a\u0085b", 1))).code, "invalid-key");
+  await b.notifications.show({ title: "\uFEFF" });
+  assert.equal((await codeOf(b.notifications.show({ title: "\u0085\u3000 " }))).code, "invalid-params");
 });
 
 test("wrapBridge turns plain-object rejections into IntentError", async () => {
@@ -222,10 +238,11 @@ test("wrapBridge turns plain-object rejections into IntentError", async () => {
     },
   };
   const c = wrapBridge(hostLike);
-  const e1 = await codeOf(c.storage.get("k"));
+  const caught = async (p) => p.then(() => assert.fail("resolved"), (e) => (assert.ok(e instanceof IntentError), e));
+  const e1 = await caught(c.storage.get("k"));
   assert.deepEqual([e1.code, e1.message, e1.data], ["invalid-key", "bad key", { x: 1 }]);
-  assert.equal((await codeOf(c.storage.set("k", 1))).code, "internal");
-  assert.equal((await codeOf(c.storage.delete("k"))).code, "internal");
+  assert.equal((await caught(c.storage.set("k", 1))).code, "internal");
+  assert.equal((await caught(c.storage.delete("k"))).code, "internal");
   assert.throws(() => wrapBridge({ ...base, bridgeVersion: 2 }), (e) => e.code === "not-supported");
 });
 

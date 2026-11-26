@@ -1,5 +1,5 @@
-import { IntentError } from "./errors.js";
-import { charCount, compareUtf8, utf8Length } from "./paths.js";
+import { IntentError, toIntentError } from "./errors.js";
+import { charCount, compareUtf8, CONTROL_RE, trimWhiteSpace, utf8Length } from "./paths.js";
 import {
   BRIDGE_VERSION,
   LIMITS,
@@ -107,7 +107,6 @@ export const MOCK_PROVIDERS: ModelsListResult = {
 };
 
 const EMPTY_BUNDLE_HASH = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-const CONTROL_KEY_RE = /[\u0000-\u001f\u007f]/;
 const LEVEL2_FEATURES: Feature[] = ["notifications", "models", "globalShortcuts", "alwaysOnTop"];
 
 function invalidParams(detail: string): IntentError {
@@ -236,7 +235,7 @@ export function createMockBridge(options: MockBridgeOptions = {}): MockBridge {
   const checkKey = (key: unknown): string => {
     if (typeof key !== "string") throw invalidParams("key must be a string");
     const n = utf8Length(key);
-    if (n < 1 || n > LIMITS.storage.maxKeyBytes || CONTROL_KEY_RE.test(key)) {
+    if (n < 1 || n > LIMITS.storage.maxKeyBytes || CONTROL_RE.test(key)) {
       throw new IntentError("invalid-key", "Storage keys are 1–256 UTF-8 bytes without control characters");
     }
     return key;
@@ -323,7 +322,7 @@ export function createMockBridge(options: MockBridgeOptions = {}): MockBridge {
         if (!isPlainOptions(n)) throw invalidParams("notification must be an object");
         const { title, body, tag } = n as NotificationRequest;
         if (typeof title !== "string") throw invalidParams("title must be a string");
-        const tLen = charCount(title.trim());
+        const tLen = charCount(trimWhiteSpace(title));
         if (tLen < 1 || tLen > LIMITS.notify.maxTitleChars) throw invalidParams("title must be 1–128 chars after trim");
         if (body !== undefined && (typeof body !== "string" || charCount(body) > LIMITS.notify.maxBodyChars)) {
           throw invalidParams("body must be a string of at most 1024 chars");
@@ -447,7 +446,7 @@ export function createMockBridge(options: MockBridgeOptions = {}): MockBridge {
         }
         if (shortcuts.has(accelerator)) return;
         if (shortcuts.size >= LIMITS.shortcuts.maxPerApp) {
-          throw new IntentError("shortcut-unavailable", "At most 10 shortcuts per app");
+          throw invalidParams("At most 10 shortcuts per app");
         }
         if (taken.has(accelerator)) throw new IntentError("shortcut-unavailable", `${accelerator} is taken`);
         shortcuts.add(accelerator);
@@ -507,7 +506,53 @@ export function createMockBridge(options: MockBridgeOptions = {}): MockBridge {
     usedBytes,
   };
 
-  return Object.assign(bridge, { mock: controls });
+  return Object.assign(toRawBridge(bridge), { mock: controls });
+}
+
+/** The raw rejection shape: a plain `{ code, message, data? }` (contract "Rejection shape"). */
+export interface RawBridgeError {
+  code: string;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
+function toRaw(e: unknown): RawBridgeError {
+  const err = toIntentError(e);
+  const raw: RawBridgeError = { code: err.code, message: err.message };
+  if (err.data !== undefined && Object.keys(err.data).length > 0) raw.data = err.data;
+  return raw;
+}
+
+/** Make every rejection (and every synchronous throw of `on`) a plain object, as the host does. */
+function toRawBridge(b: IntentBridge): IntentBridge {
+  const wrap = <A extends unknown[], R>(fn: (...a: A) => Promise<R>) =>
+    async (...a: A): Promise<R> => {
+      try {
+        return await fn(...a);
+      } catch (e) {
+        throw toRaw(e);
+      }
+    };
+  const group = <T extends object>(o: T): T =>
+    Object.fromEntries(
+      Object.entries(o).map(([k, v]) => [k, wrap(v as (...a: unknown[]) => Promise<unknown>)]),
+    ) as T;
+  return {
+    bridgeVersion: b.bridgeVersion,
+    app: group(b.app),
+    storage: group(b.storage),
+    notifications: group(b.notifications),
+    models: group(b.models),
+    window: group(b.window),
+    shortcuts: group(b.shortcuts),
+    on(type, listener) {
+      try {
+        return b.on(type, listener);
+      } catch (e) {
+        throw toRaw(e);
+      }
+    },
+  };
 }
 
 async function defaultComplete(
