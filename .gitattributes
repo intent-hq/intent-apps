@@ -1,0 +1,3 @@
+# Hash vectors must keep their exact bytes on every platform.
+test-vectors/** -text
+templates/** -text

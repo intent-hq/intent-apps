@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/intent-hq/intent-apps/schema/intent-app.schema.json",
+  "title": "Intent app manifest (intent-app.json)",
+  "description": "Manifest of an Intent app bundle, protocol §5.60 (manifestVersion 1). Some rules need the bundle or code and are not in this schema: the name length after trim, minWidth ≤ width and minHeight ≤ height, icon and entry naming a file of the bundle, and the 64 KiB file size. The SDK's validateManifest() checks all of them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "id", "name", "version", "permissions"],
+  "properties": {
+    "manifestVersion": { "const": 1 },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62})[a-z0-9]$",
+      "description": "3–64 chars of a-z, 0-9 and -; no leading or trailing -."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+      "description": "1–64 chars after trim, no control characters."
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "SemVer 2.0.0."
+    },
+    "description": { "type": "string", "maxLength": 280 },
+    "icon": {
+      "allOf": [{ "$ref": "#/$defs/bundlePath" }, { "pattern": "\\.[Pp][Nn][Gg]$" }],
+      "description": "Bundle path of a PNG (square, 256 px or more recommended)."
+    },
+    "entry": {
+      "allOf": [{ "$ref": "#/$defs/bundlePath" }, { "pattern": "\\.[Hh][Tt][Mm][Ll]$" }],
+      "default": "index.html",
+      "description": "Bundle path of the .html entry file."
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level"],
+      "properties": {
+        "level": { "enum": [1, 2, 3], "description": "1 Default, 2 App features, 3 Full access (not available yet)." },
+        "features": {
+          "type": "array",
+          "uniqueItems": true,
+          "default": [],
+          "items": { "enum": ["notifications", "models", "globalShortcuts", "alwaysOnTop"] }
+        }
+      },
+      "if": { "properties": { "level": { "const": 1 } } },
+      "then": { "properties": { "features": { "maxItems": 0 } } }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 320, "maximum": 4096, "default": 960 },
+        "height": { "type": "integer", "minimum": 240, "maximum": 4096, "default": 640 },
+        "minWidth": { "type": "integer", "minimum": 320, "maximum": 4096, "description": "320–width." },
+        "minHeight": { "type": "integer", "minimum": 240, "maximum": 4096, "description": "240–height." },
+        "resizable": { "type": "boolean", "default": true },
+        "alwaysOnTop": { "type": "boolean", "default": false, "description": "true needs the alwaysOnTop feature." }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["window"],
+        "properties": { "window": { "required": ["alwaysOnTop"], "properties": { "alwaysOnTop": { "const": true } } } }
+      },
+      "then": {
+        "required": ["permissions"],
+        "properties": {
+          "permissions": { "required": ["features"], "properties": { "features": { "contains": { "const": "alwaysOnTop" } } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "bundlePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*\\u0000)(?!(?:.*/)?\\.\\.(?:/|$)).*$",
+      "description": "Relative path with / separators, no .. segment, no leading /, no \\, no NUL, at most 512 UTF-8 bytes, naming a regular file of the bundle."
+    }
+  }
+}

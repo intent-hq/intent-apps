@@ -1,0 +1,55 @@
+{
+  "name": "@intent-hq/apps",
+  "version": "0.1.0",
+  "description": "SDK, manifest schema, mock bridge, templates and compliance tests for Intent apps",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/intent-hq/intent-apps.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./compliance": {
+      "types": "./dist/compliance/index.d.ts",
+      "default": "./dist/compliance/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "default": "./dist/node/index.js"
+    },
+    "./schema/intent-app.schema.json": "./schema/intent-app.schema.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "intent-apps": "./dist/node/cli.js"
+  },
+  "files": [
+    "dist",
+    "schema",
+    "templates",
+    "skill",
+    "test-vectors"
+  ],
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "sync-template": "node scripts/sync-template.mjs",
+    "check-template": "node scripts/sync-template.mjs --check",
+    "test": "npm run build && node --test \"test/**/*.test.mjs\"",
+    "verify-vectors": "python3 scripts/verify_vectors.py",
+    "ci": "npm run build && node scripts/sync-template.mjs --check && node --test \"test/**/*.test.mjs\" && python3 scripts/verify_vectors.py"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "ajv": "^8.20.0",
+    "typescript": "~6.0.3"
+  }
+}
