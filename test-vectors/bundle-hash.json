@@ -1,0 +1,165 @@
+{
+  "description": "Bundle hash test vectors for Intent apps (protocol §5.60 'Bundle hash'). For each vector, hash the files as a bundle and compare with `hash`. A file has `path` (a Unicode string; use its UTF-8 bytes) and either `contentBase64` or `contentRepeat` ({ text, count }: the UTF-8 bytes of text, count times). `preimageHex` (small vectors only) is the exact byte stream fed to SHA-256. `directories` lists bundle directories in this folder with their hash. `diskRepresentable: false` marks vectors that cannot exist as a directory (a path is both a file and a directory).",
+  "algorithm": "sort files by UTF-8 path bytes; for each file: path bytes, 0x00, ASCII decimal length, 0x00, content; hash = 'sha256:' + lowercase hex SHA-256",
+  "vectors": [
+    {
+      "name": "empty-file-list",
+      "note": "No files: SHA-256 of zero bytes. A real bundle always has intent-app.json; this checks the prefix and hex form only.",
+      "files": [],
+      "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preimageHex": ""
+    },
+    {
+      "name": "single-manifest",
+      "files": [
+        {
+          "path": "intent-app.json",
+          "contentBase64": "eyJtYW5pZmVzdFZlcnNpb24iOjEsImlkIjoiaGVsbG8iLCJuYW1lIjoiSGVsbG8iLCJ2ZXJzaW9uIjoiMS4wLjAiLCJwZXJtaXNzaW9ucyI6eyJsZXZlbCI6MX19Cg=="
+        }
+      ],
+      "hash": "sha256:817b663d2c9a81cb4e3838908ed570e4dae28b544100594718801a316aa90428",
+      "preimageHex": "696e74656e742d6170702e6a736f6e003934007b226d616e696665737456657273696f6e223a312c226964223a2268656c6c6f222c226e616d65223a2248656c6c6f222c2276657273696f6e223a22312e302e30222c227065726d697373696f6e73223a7b226c6576656c223a317d7d0a"
+    },
+    {
+      "name": "single-manifest-one-byte-changed",
+      "note": "Same as single-manifest with version 1.0.1: any change gives a new hash.",
+      "files": [
+        {
+          "path": "intent-app.json",
+          "contentBase64": "eyJtYW5pZmVzdFZlcnNpb24iOjEsImlkIjoiaGVsbG8iLCJuYW1lIjoiSGVsbG8iLCJ2ZXJzaW9uIjoiMS4wLjEiLCJwZXJtaXNzaW9ucyI6eyJsZXZlbCI6MX19Cg=="
+        }
+      ],
+      "hash": "sha256:192880d6d629ed74ac7166dd9f3f19d01450d38a3af413df30ea866e0fd144aa",
+      "preimageHex": "696e74656e742d6170702e6a736f6e003934007b226d616e696665737456657273696f6e223a312c226964223a2268656c6c6f222c226e616d65223a2248656c6c6f222c2276657273696f6e223a22312e302e31222c227065726d697373696f6e73223a7b226c6576656c223a317d7d0a"
+    },
+    {
+      "name": "empty-file",
+      "note": "Length 0 is the single ASCII digit 0.",
+      "files": [
+        {
+          "path": "a.txt",
+          "contentBase64": ""
+        }
+      ],
+      "hash": "sha256:99ce38cb0fa4a228bae879c8d1657e48998439e811711cbce1d18e5d20e88dea",
+      "preimageHex": "612e747874003000"
+    },
+    {
+      "name": "bytewise-path-order",
+      "note": "Order is bytewise over the whole path: B < a < a-b < a.b < a/b < ab < b (not per directory segment, not case-insensitive). Both 'a' and 'a/b' are files, so this vector exists only in memory.",
+      "files": [
+        {
+          "path": "b",
+          "contentBase64": "Yg=="
+        },
+        {
+          "path": "ab",
+          "contentBase64": "YWI="
+        },
+        {
+          "path": "a/b",
+          "contentBase64": "YS9i"
+        },
+        {
+          "path": "a.b",
+          "contentBase64": "YS5i"
+        },
+        {
+          "path": "a-b",
+          "contentBase64": "YS1i"
+        },
+        {
+          "path": "a",
+          "contentBase64": "YQ=="
+        },
+        {
+          "path": "B",
+          "contentBase64": "Qg=="
+        }
+      ],
+      "hash": "sha256:22acf6768615601eeade88e4dd16f4650e2f24663900a9a30edf59fdfb169573",
+      "preimageHex": "42003100426100310061612d62003300612d62612e62003300612e62612f62003300612f62616200320061626200310062",
+      "diskRepresentable": false
+    },
+    {
+      "name": "utf8-byte-order",
+      "note": "UTF-8 byte order, not UTF-16: U+FF5A (EF BD 9A) sorts before U+1F600 (F0 9F 98 80).",
+      "files": [
+        {
+          "path": "😀.txt",
+          "contentBase64": "eA=="
+        },
+        {
+          "path": "z.txt",
+          "contentBase64": "eA=="
+        },
+        {
+          "path": "é.txt",
+          "contentBase64": "eA=="
+        },
+        {
+          "path": "ｚ.txt",
+          "contentBase64": "eA=="
+        }
+      ],
+      "hash": "sha256:465b6849c49f4779bed97c110909233070fa8b888facf2d66952b1f7a5ab048a",
+      "preimageHex": "7a2e74787400310078c3a92e74787400310078efbd9a2e74787400310078f09f98802e74787400310078"
+    },
+    {
+      "name": "no-unicode-normalization",
+      "note": "NFC e-acute (C3 A9) and NFD e + U+0301 (65 CC 81) are two different paths, hashed as stored.",
+      "files": [
+        {
+          "path": "é.txt",
+          "contentBase64": "bmZj"
+        },
+        {
+          "path": "é.txt",
+          "contentBase64": "bmZk"
+        }
+      ],
+      "hash": "sha256:5dcecc05cb0dda07f0a23f0e83785a6b328d9ca48b26ddbb7c7c0e432c1ff95b",
+      "preimageHex": "65cc812e7478740033006e6664c3a92e7478740033006e6663"
+    },
+    {
+      "name": "binary-content",
+      "note": "Content with 0x00 bytes; a three-digit length.",
+      "files": [
+        {
+          "path": "data/blob.bin",
+          "contentBase64": "AwoRGB8mLTQ7QklQV15lbHN6gYiPlp2kq7K5wMfO1dzj6vH4/wYNFBsiKTA3PkVMU1phaG92fYSLkpmgp661vMPK0djf5u30+wIJEBceJSwzOkFIT1ZdZGtyeYCHjpWco6qxuL/GzdTb4unw9/4FDBMaISgvNj1ES1JZYGdudXyDipGYn6attLvCydDX3uXs8/oBCA8WHSQrMjlAR05VXGNqcXh/ho2Um6KpsLe+xczT2uHo7/b9BAsSGSAnLjU8Q0pRWF9mbXR7gomQl56lrLO6wcjP1t3k6/L5AAcOFRwjKjE4P0ZNVFtiaXB3foWMk5qhqK+2vcTL0tng5+71/AMKERgfJi00O0JJUFdeZWxzeoGIj5adpKuyucDHztXc4+rx+P8GDRQbIikw"
+        },
+        {
+          "path": "intent-app.json",
+          "contentBase64": "eyJtYW5pZmVzdFZlcnNpb24iOjEsImlkIjoiaGVsbG8iLCJuYW1lIjoiSGVsbG8iLCJ2ZXJzaW9uIjoiMS4wLjAiLCJwZXJtaXNzaW9ucyI6eyJsZXZlbCI6MX19Cg=="
+        }
+      ],
+      "hash": "sha256:07c1b16e7a50ea02c1006955d051749e381621660735dceb05bab826426be2df",
+      "preimageHex": "646174612f626c6f622e62696e0033303000030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2c9d0d7dee5ecf3fa01080f161d242b323940474e555c636a71787f868d949ba2a9b0b7bec5ccd3dae1e8eff6fd040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f900070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9e0e7eef5fc030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930696e74656e742d6170702e6a736f6e003934007b226d616e696665737456657273696f6e223a312c226964223a2268656c6c6f222c226e616d65223a2248656c6c6f222c2276657273696f6e223a22312e302e30222c227065726d697373696f6e73223a7b226c6576656c223a317d7d0a"
+    },
+    {
+      "name": "large-file-repeat",
+      "note": "70000 bytes (multi-block, five-digit length). contentRepeat = the UTF-8 text repeated count times.",
+      "files": [
+        {
+          "path": "big.txt",
+          "contentRepeat": {
+            "text": "0123456789abcdef",
+            "count": 4375
+          }
+        },
+        {
+          "path": "intent-app.json",
+          "contentBase64": "eyJtYW5pZmVzdFZlcnNpb24iOjEsImlkIjoiaGVsbG8iLCJuYW1lIjoiSGVsbG8iLCJ2ZXJzaW9uIjoiMS4wLjAiLCJwZXJtaXNzaW9ucyI6eyJsZXZlbCI6MX19Cg=="
+        }
+      ],
+      "hash": "sha256:6d51cf5ef66d32416697ef8ddafabdfdebab2edfcdf0c64e112df1565b512c1b"
+    }
+  ],
+  "directories": [
+    {
+      "path": "bundles/hello",
+      "hash": "sha256:09f811ad6c52f8d92fbcf10c8c0a596e781784d79c75471a7829b37dc80de75a"
+    }
+  ]
+}
