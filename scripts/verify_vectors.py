@@ -21,9 +21,14 @@ def content(f):
     return r["text"].encode("utf-8") * r["count"]
 
 
+SIGNATURE_FILE = b"intent-app.sig"
+
+
 def preimage(files):
     out = bytearray()
     for path, data in sorted(files, key=lambda x: x[0]):
+        if path == SIGNATURE_FILE:
+            continue  # the root signature file is not hashed; nested ones are
         out += path + b"\x00" + str(len(data)).encode("ascii") + b"\x00" + data
     return bytes(out)
 

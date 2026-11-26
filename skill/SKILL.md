@@ -50,6 +50,9 @@ Rules (an install fails with `invalid-manifest` and a JSON pointer otherwise):
 - No other keys. `window`: `width` 320–4096 (default 960), `height` 240–4096
   (default 640), optional `minWidth`/`minHeight` up to the size, `resizable`,
   `alwaysOnTop` (needs the `alwaysOnTop` feature).
+- Optional `publisher` (`name`, `url`, `keyId`) and `updateUrl` (https URLs) are
+  reserved. Intent stores them but does not verify them yet, so leave them out unless
+  the user asks.
 - Validate with the schema `schema/intent-app.schema.json` or
   `intent-apps validate <dir>`.
 

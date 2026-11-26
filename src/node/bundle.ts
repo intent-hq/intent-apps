@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { fileHeader, HASH_PREFIX } from "../hash.js";
 import { validateManifest, type ManifestError } from "../manifest.js";
 import { bundlePathProblem, compareBytes } from "../paths.js";
-import { LIMITS, MANIFEST_FILE, type NormalizedManifest } from "../types.js";
+import { parseSignatureFile } from "../signature.js";
+import { LIMITS, MANIFEST_FILE, SIGNATURE_FILE, type NormalizedManifest, type SignatureFile } from "../types.js";
 
 /** A refusal with the daemon's `error.data` shape (`invalid-bundle`, `invalid-manifest`, …). */
 export class BundleError extends Error {
@@ -33,8 +34,11 @@ export interface BundleEntry {
 
 export interface ScannedBundle {
   root: string;
-  /** Regular files, sorted bytewise by path. */
+  /** Bundle files (hashed and served), sorted bytewise by path. Excludes the root `intent-app.sig`. */
   files: BundleEntry[];
+  /** The root `intent-app.sig`, when present. Not a bundle file. */
+  signatureFile: BundleEntry | null;
+  /** Count and size of `files` (the signature file is excluded, as in `App`). */
   fileCount: number;
   sizeBytes: number;
 }
@@ -42,6 +46,8 @@ export interface ScannedBundle {
 export interface LoadedBundle extends ScannedBundle {
   manifest: NormalizedManifest;
   bundleHash: string;
+  /** The parsed `intent-app.sig`, or null. Shape-checked only; never verified in M1. */
+  signature: SignatureFile | null;
 }
 
 const fatalUtf8 = new TextDecoder("utf-8", { fatal: true });
@@ -49,8 +55,10 @@ const fatalUtf8 = new TextDecoder("utf-8", { fatal: true });
 /**
  * Walk a bundle directory and check the limits of protocol §5.60: regular
  * files only (a symlink, device or socket anywhere is `invalid-bundle`),
- * at most 2000 files, 16 MiB each, 64 MiB in total. Empty directories are
- * ignored. The bundle root itself may be reached through a symlink.
+ * at most 2000 files, 16 MiB each, 64 MiB in total. The root
+ * `intent-app.sig` (at most 16 KiB) counts toward the limits but is kept
+ * apart from `files`. Empty directories are ignored. The bundle root itself
+ * may be reached through a symlink.
  */
 export async function scanBundle(root: string): Promise<ScannedBundle> {
   let rootStat;
@@ -62,6 +70,8 @@ export async function scanBundle(root: string): Promise<ScannedBundle> {
   if (!rootStat.isDirectory()) throw new BundleError({ code: "path-not-found", detail: `${root} is not a directory` });
 
   const files: BundleEntry[] = [];
+  let signatureFile: BundleEntry | null = null;
+  let count = 0;
   let total = 0;
   const enc = new TextEncoder();
 
@@ -95,8 +105,16 @@ export async function scanBundle(root: string): Promise<ScannedBundle> {
       if (st.size > LIMITS.maxFileBytes) {
         throw new BundleError({ code: "invalid-bundle", detail: "a file is larger than 16 MiB", path: relPath });
       }
-      files.push({ path: relPath, pathBytes: relPathBytes, absPath: abs, size: st.size });
-      if (files.length > LIMITS.maxFiles) {
+      const entry = { path: relPath, pathBytes: relPathBytes, absPath: abs, size: st.size };
+      if (relBytes === null && name === SIGNATURE_FILE) {
+        if (st.size > LIMITS.maxSignatureBytes) {
+          throw new BundleError({ code: "invalid-bundle", detail: "larger than 16 KiB", path: SIGNATURE_FILE });
+        }
+        signatureFile = entry;
+      } else {
+        files.push(entry);
+      }
+      if (++count > LIMITS.maxFiles) {
         throw new BundleError({ code: "invalid-bundle", detail: "more than 2000 files", path: null });
       }
       total += st.size;
@@ -108,7 +126,8 @@ export async function scanBundle(root: string): Promise<ScannedBundle> {
 
   await walk(root, null);
   files.sort((a, b) => compareBytes(a.pathBytes, b.pathBytes));
-  return { root, files, fileCount: files.length, sizeBytes: total };
+  const sigSize = (signatureFile as BundleEntry | null)?.size ?? 0;
+  return { root, files, signatureFile, fileCount: files.length, sizeBytes: total - sigSize };
 }
 
 /** Hash scanned files by streaming their content (node:crypto). */
@@ -150,7 +169,13 @@ export async function loadBundle(root: string, opts: { install?: boolean } = {})
   const raw = new Uint8Array(await readFile(manifestEntry.absPath));
   const res = validateManifest(raw, { files: scanned.files.map((f) => f.path), install: opts.install ?? true });
   if (!res.ok) throw new BundleError(res.error);
-  return { ...scanned, manifest: res.manifest, bundleHash: await hashScannedBundle(scanned) };
+  let signature: SignatureFile | null = null;
+  if (scanned.signatureFile !== null) {
+    const sig = parseSignatureFile(new Uint8Array(await readFile(scanned.signatureFile.absPath)));
+    if (!sig.ok) throw new BundleError({ code: "invalid-bundle", detail: sig.error.detail, path: SIGNATURE_FILE });
+    signature = sig.signature;
+  }
+  return { ...scanned, manifest: res.manifest, bundleHash: await hashScannedBundle(scanned), signature };
 }
 
 function concat(...parts: Uint8Array[]): Uint8Array {

@@ -17,15 +17,20 @@ for (const v of doc.vectors) {
     assert.equal(bundleHash([...files].reverse()), v.hash, "input order must not matter");
     if (v.preimageHex !== undefined) {
       const enc = new TextEncoder();
-      const sorted = files.map((f) => ({ p: enc.encode(f.path), c: f.content })).sort((a, b) => compareBytes(a.p, b.p));
+      const sorted = files
+        .filter((f) => f.path !== "intent-app.sig")
+        .map((f) => ({ p: enc.encode(f.path), c: f.content }))
+        .sort((a, b) => compareBytes(a.p, b.p));
       const parts = sorted.flatMap((f) => [fileHeader(f.p, f.c.length), f.c]);
       assert.equal(Buffer.concat(parts).toString("hex"), v.preimageHex);
     }
   });
 }
 
-test("vectors cover distinct hashes", () => {
-  const hashes = doc.vectors.map((v) => v.hash);
+test("vectors cover distinct hashes (except the one that proves the sig is skipped)", () => {
+  const byName = Object.fromEntries(doc.vectors.map((v) => [v.name, v.hash]));
+  assert.equal(byName["root-signature-excluded"], byName["single-manifest"]);
+  const hashes = doc.vectors.filter((v) => v.name !== "root-signature-excluded").map((v) => v.hash);
   assert.equal(new Set(hashes).size, hashes.length);
 });
 

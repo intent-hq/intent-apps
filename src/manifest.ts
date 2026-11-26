@@ -34,9 +34,34 @@ const TOP_KEYS = new Set([
   "entry",
   "permissions",
   "window",
+  "publisher",
+  "updateUrl",
 ]);
 const PERMISSION_KEYS = new Set(["level", "features"]);
 const WINDOW_KEYS = new Set(["width", "height", "minWidth", "minHeight", "resizable", "alwaysOnTop"]);
+const PUBLISHER_KEYS = new Set(["name", "url", "keyId"]);
+
+/** 1–256 printable ASCII chars (U+0020–U+007E): `publisher.keyId` and the signature `keyId`. */
+export const KEY_ID_RE = /^[\x20-\x7e]{1,256}$/;
+
+/**
+ * An absolute https URL of at most 2048 chars (`publisher.url`, `updateUrl`).
+ * Whitespace and control characters are refused, so the string is stored as written.
+ */
+export function httpsUrlProblem(v: string): string | null {
+  if (v.length < 1 || v.length > LIMITS.maxUrlChars) return `must be 1–${LIMITS.maxUrlChars} chars`;
+  if (/[\s\u0000-\u001f\u007f-\u009f]/.test(v)) return "must not contain whitespace or control characters";
+  if (!v.startsWith("https://")) return 'must start with "https://"';
+  let u: URL;
+  try {
+    u = new URL(v);
+  } catch {
+    return "must be an absolute URL";
+  }
+  if (u.protocol !== "https:") return "must be an https URL";
+  if (u.hostname === "") return "must have a host";
+  return null;
+}
 
 /** Error data of a refused manifest, as in the daemon's `error.data`. */
 export interface ManifestError {
@@ -188,6 +213,37 @@ function normalize(doc: unknown, files: Set<string> | null): NormalizedManifest 
     }
   }
 
+  let publisher: NormalizedManifest["publisher"] = null;
+  if ("publisher" in doc) {
+    const p = doc.publisher;
+    if (!isObject(p)) throw new Invalid("/publisher", "must be an object");
+    checkKeys(p, PUBLISHER_KEYS, ["publisher"]);
+    if (!("name" in p)) throw new Invalid("/publisher/name", 'missing required key "name"');
+    const pName = str(p.name, "/publisher/name");
+    const pLen = charCount(pName.trim());
+    if (pLen < 1 || pLen > 128) throw new Invalid("/publisher/name", "must be 1–128 chars after trim");
+    if (CONTROL_RE.test(pName)) throw new Invalid("/publisher/name", "must not contain control characters");
+    let url: string | null = null;
+    if ("url" in p) {
+      url = str(p.url, "/publisher/url");
+      const problem = httpsUrlProblem(url);
+      if (problem !== null) throw new Invalid("/publisher/url", problem);
+    }
+    let keyId: string | null = null;
+    if ("keyId" in p) {
+      keyId = str(p.keyId, "/publisher/keyId");
+      if (!KEY_ID_RE.test(keyId)) throw new Invalid("/publisher/keyId", "must be 1–256 printable ASCII chars");
+    }
+    publisher = { name: pName, url, keyId };
+  }
+
+  let updateUrl: string | null = null;
+  if ("updateUrl" in doc) {
+    updateUrl = str(doc.updateUrl, "/updateUrl");
+    const problem = httpsUrlProblem(updateUrl);
+    if (problem !== null) throw new Invalid("/updateUrl", problem);
+  }
+
   return {
     manifestVersion: MANIFEST_VERSION,
     id,
@@ -198,6 +254,8 @@ function normalize(doc: unknown, files: Set<string> | null): NormalizedManifest 
     entry,
     permissions: { level, features },
     window,
+    publisher,
+    updateUrl,
   };
 }
 

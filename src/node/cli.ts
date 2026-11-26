@@ -36,7 +36,14 @@ async function main(argv: string[]): Promise<number> {
         const b = await loadBundle(dir);
         console.log(
           JSON.stringify(
-            { ok: true, manifest: b.manifest, bundleHash: b.bundleHash, fileCount: b.fileCount, sizeBytes: b.sizeBytes },
+            {
+              ok: true,
+              manifest: b.manifest,
+              bundleHash: b.bundleHash,
+              fileCount: b.fileCount,
+              sizeBytes: b.sizeBytes,
+              signature: b.signature === null ? null : { ...b.signature, status: "unverified", verified: false },
+            },
             null,
             2,
           ),

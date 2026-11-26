@@ -6,6 +6,9 @@
 export const BRIDGE_VERSION = 1 as const;
 export const MANIFEST_VERSION = 1 as const;
 export const MANIFEST_FILE = "intent-app.json";
+/** Detached signature file at the bundle root. Excluded from the bundle hash; not a bundle file. */
+export const SIGNATURE_FILE = "intent-app.sig";
+export const SIGNATURE_VERSION = 1 as const;
 
 /** Content-Security-Policy on every `intent-app://` response. */
 export const APP_CSP =
@@ -21,6 +24,8 @@ export const LIMITS = {
   maxFileBytes: 16 * 1024 * 1024,
   maxTotalBytes: 64 * 1024 * 1024,
   maxManifestBytes: 64 * 1024,
+  maxSignatureBytes: 16 * 1024,
+  maxUrlChars: 2048,
   maxPathBytes: 512,
   storage: {
     maxKeyBytes: 256,
@@ -61,6 +66,40 @@ export interface Manifest {
   entry?: string;
   permissions: { level: Level; features?: Feature[] };
   window?: Partial<WindowSpec> & { minWidth?: number; minHeight?: number };
+  /** Reserved: stored and returned, never verified in M1. */
+  publisher?: { name: string; url?: string; keyId?: string };
+  /** Reserved: an absolute https URL; never fetched in M1. */
+  updateUrl?: string;
+}
+
+/** Manifest `publisher` with defaults applied. */
+export interface Publisher {
+  name: string;
+  url: string | null;
+  keyId: string | null;
+}
+
+/** `App.publisher` (daemon rows). `verified` is always false in M1. */
+export interface AppPublisher extends Publisher {
+  verified: boolean;
+}
+
+/** The content of `intent-app.sig`. */
+export interface SignatureFile {
+  sigVersion: 1;
+  algorithm: string;
+  keyId: string;
+  bundleHash: string;
+  signature: string;
+}
+
+/** Reserved later values: "valid" | "invalid" | "untrusted-key". M1 is always "unverified". */
+export type SignatureStatus = "unverified" | "valid" | "invalid" | "untrusted-key";
+
+/** `App.signature` (daemon rows). M1: status "unverified", verified false. */
+export interface AppSignature extends SignatureFile {
+  status: SignatureStatus;
+  verified: boolean;
 }
 
 /** The `window` object of `App` and `AppSession`, with defaults applied. */
@@ -84,6 +123,8 @@ export interface NormalizedManifest {
   entry: string;
   permissions: { level: Level; features: Feature[] };
   window: WindowSpec;
+  publisher: Publisher | null;
+  updateUrl: string | null;
 }
 
 export interface AppInfo {

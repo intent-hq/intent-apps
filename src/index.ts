@@ -21,3 +21,15 @@ export {
 export { bundleHash, BundleHasher, fileHeader, BUNDLE_HASH_RE, HASH_PREFIX, type BundleFile } from "./hash.js";
 export { bundlePathProblem, compareBytes, compareUtf8 } from "./paths.js";
 export { Sha256, sha256Hex } from "./sha256.js";
+export { isRootSignaturePath } from "./hash.js";
+export { httpsUrlProblem, KEY_ID_RE } from "./manifest.js";
+export {
+  parseSignatureFile,
+  signatureMessage,
+  unverifiedAppSignature,
+  SIGNATURE_ALGORITHM_RE,
+  SIGNATURE_MESSAGE_PREFIX,
+  SIGNATURE_VALUE_RE,
+  type SignatureError,
+  type SignatureResult,
+} from "./signature.js";

@@ -26,7 +26,8 @@
       "default": "./dist/node/index.js"
     },
     "./schema/intent-app.schema.json": "./schema/intent-app.schema.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./schema/intent-app-sig.schema.json": "./schema/intent-app-sig.schema.json"
   },
   "bin": {
     "intent-apps": "./dist/node/cli.js"

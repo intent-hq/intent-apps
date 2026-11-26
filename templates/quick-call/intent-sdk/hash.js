@@ -1,6 +1,7 @@
 // Vendored from @intent-hq/apps (intent-hq/intent-apps). Do not edit: run `npm run sync-template`.
 import { Sha256 } from "./sha256.js";
 import { compareBytes, utf8 } from "./paths.js";
+import { SIGNATURE_FILE } from "./types.js";
 export const HASH_PREFIX = "sha256:";
 export const BUNDLE_HASH_RE = /^sha256:[0-9a-f]{64}$/;
 /**
@@ -58,12 +59,21 @@ export class BundleHasher {
         }
     }
 }
-/** Compute the bundle hash (contract "Bundle hash") of in-memory files. */
+const SIGNATURE_PATH = utf8(SIGNATURE_FILE);
+/** True for the one root path `intent-app.sig`, which the bundle hash skips. */
+export function isRootSignaturePath(path) {
+    const b = typeof path === "string" ? utf8(path) : path;
+    return compareBytes(b, SIGNATURE_PATH) === 0;
+}
+/**
+ * Compute the bundle hash (contract "Bundle hash") of in-memory files.
+ * The root `intent-app.sig` is skipped; the same name in a subdirectory is hashed.
+ */
 export function bundleHash(files) {
     const entries = Array.from(files, (f) => ({
         path: typeof f.path === "string" ? utf8(f.path) : f.path,
         content: f.content,
-    }));
+    })).filter((e) => !isRootSignaturePath(e.path));
     entries.sort((a, b) => compareBytes(a.path, b.path));
     const h = new BundleHasher();
     for (const e of entries)

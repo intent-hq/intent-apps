@@ -16,8 +16,8 @@ This package implements its app-side parts. It has no Electron or daemon depende
 | `src/` → `@intent-hq/apps` | Typed `window.intent` client (`connect`), `IntentError`, bridge types, manifest validator (`validateManifest`), bundle hash (`bundleHash`, pure TypeScript SHA-256), mock bridge (`createMockBridge`) |
 | `src/node/` → `@intent-hq/apps/node` | Bundle directory reader with the contract limits (`loadBundle`, `hashBundleDir`), `app.readBundle` mime table, dev server, `intent-apps` CLI |
 | `src/compliance/` → `@intent-hq/apps/compliance` | `runCompliance(bridge, { expect })`: checks any `window.intent` (the desktop app host or the mock) against the contract |
-| `schema/intent-app.schema.json` | JSON Schema (2020-12) of `intent-app.json` |
-| `test-vectors/` | Bundle hash vectors and manifest validation vectors for other implementations (intentd) |
+| `schema/intent-app.schema.json`, `schema/intent-app-sig.schema.json` | JSON Schemas (2020-12) of `intent-app.json` and the detached signature `intent-app.sig` |
+| `test-vectors/` | Bundle hash, manifest and signature-file vectors for other implementations (intentd) |
 | `templates/quick-call/` | Template app: a quick model call with provider and model choice |
 | `skill/SKILL.md` | Agent skill: how to build, test and install an app |
 
@@ -44,7 +44,8 @@ const { text } = await intent.models.complete({ prompt: "Hello" });
 
 `sha256:` + hex SHA-256 over every regular file of the bundle, sorted by the UTF-8
 bytes of its path; for each file: path bytes, `0x00`, the length in ASCII decimal,
-`0x00`, the content. `test-vectors/bundle-hash.json` has vectors with the exact
+`0x00`, the content. The one root path `intent-app.sig` is skipped (the same name in a
+subdirectory is hashed). `test-vectors/bundle-hash.json` has vectors with the exact
 preimage for the small ones; `scripts/verify_vectors.py` checks them with Python's
 `hashlib`, independently of the TypeScript code. Implementations should run every
 vector and the `directories` entries.
@@ -54,6 +55,16 @@ vector and the `directories` entries.
 `test-vectors/manifests.json` lists valid and invalid manifests with the expected
 `app.install` result (`invalid-manifest` + JSON pointer `field`, or
 `level-unavailable`) and the JSON Schema result.
+
+## Publisher and signature (reserved)
+
+A manifest may carry `publisher` (`name`, optional `url` and `keyId`) and `updateUrl`.
+A bundle may carry a detached `intent-app.sig` at its root. In milestone 1 these are
+stored and returned, only their shape is checked (`parseSignatureFile`,
+`test-vectors/signatures.json`), and they are **never verified**: do not show a
+publisher as confirmed or treat a signature as trust. The signature file is not a
+bundle file: it is not hashed, served or counted in `fileCount` / `sizeBytes`, but it
+counts toward the 2000-file limit.
 
 ## Compliance suite
 

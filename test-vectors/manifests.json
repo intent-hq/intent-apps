@@ -40,7 +40,9 @@
           "minHeight": null,
           "resizable": true,
           "alwaysOnTop": false
-        }
+        },
+        "publisher": null,
+        "updateUrl": null
       }
     },
     {
@@ -111,7 +113,9 @@
           "minHeight": 240,
           "resizable": false,
           "alwaysOnTop": true
-        }
+        },
+        "publisher": null,
+        "updateUrl": null
       },
       "files": [
         "intent-app.json",
@@ -1138,6 +1142,563 @@
       "valid": false,
       "code": "invalid-manifest",
       "field": "/window/alwaysOnTop",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-and-update-url",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "Example Labs",
+          "url": "https://example.com",
+          "keyId": "ed25519:Rk9P"
+        },
+        "updateUrl": "https://example.com/apps/pomodoro-timer"
+      },
+      "valid": true,
+      "schemaValid": true,
+      "normalized": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "description": null,
+        "icon": null,
+        "entry": "index.html",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "window": {
+          "width": 960,
+          "height": 640,
+          "minWidth": null,
+          "minHeight": null,
+          "resizable": true,
+          "alwaysOnTop": false
+        },
+        "publisher": {
+          "name": "Example Labs",
+          "url": "https://example.com",
+          "keyId": "ed25519:Rk9P"
+        },
+        "updateUrl": "https://example.com/apps/pomodoro-timer"
+      }
+    },
+    {
+      "name": "publisher-name-only",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "Example Labs"
+        }
+      },
+      "valid": true,
+      "schemaValid": true,
+      "normalized": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "description": null,
+        "icon": null,
+        "entry": "index.html",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "window": {
+          "width": 960,
+          "height": 640,
+          "minWidth": null,
+          "minHeight": null,
+          "resizable": true,
+          "alwaysOnTop": false
+        },
+        "publisher": {
+          "name": "Example Labs",
+          "url": null,
+          "keyId": null
+        },
+        "updateUrl": null
+      }
+    },
+    {
+      "name": "publisher-name-128-chars",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
+        }
+      },
+      "valid": true,
+      "schemaValid": true
+    },
+    {
+      "name": "publisher-key-id-256-printable",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": "~ !kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+        }
+      },
+      "valid": true,
+      "schemaValid": true
+    },
+    {
+      "name": "update-url-2048-chars",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "valid": true,
+      "schemaValid": true
+    },
+    {
+      "name": "publisher-not-object",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": "Example Labs"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-missing-name",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "url": "https://example.com"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/name",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-unknown-key",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "email": "a@example.com"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/email",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-name-blank",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "  "
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/name",
+      "schemaValid": true,
+      "note": "Blank after trim; the schema cannot express trim."
+    },
+    {
+      "name": "publisher-name-129-chars",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/name",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-name-control-char",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "Bad\tName"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/name",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-url-http",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "url": "http://example.com"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/url",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-url-relative",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "url": "/about"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/url",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-url-null",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "url": null
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/url",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-key-id-empty",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": ""
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/keyId",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-key-id-257",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/keyId",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-key-id-non-ascii",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": "ключ"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/keyId",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-key-id-tab",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "keyId": "a\tb"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/keyId",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-http",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "http://example.com/app"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-2049-chars",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-space",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://example.com/a b"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-number",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": 1
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
       "schemaValid": false
     }
   ]

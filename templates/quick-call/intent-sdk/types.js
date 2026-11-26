@@ -6,6 +6,9 @@
 export const BRIDGE_VERSION = 1;
 export const MANIFEST_VERSION = 1;
 export const MANIFEST_FILE = "intent-app.json";
+/** Detached signature file at the bundle root. Excluded from the bundle hash; not a bundle file. */
+export const SIGNATURE_FILE = "intent-app.sig";
+export const SIGNATURE_VERSION = 1;
 /** Content-Security-Policy on every `intent-app://` response. */
 export const APP_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'none'; form-action 'none'";
 export const FEATURES = ["notifications", "models", "globalShortcuts", "alwaysOnTop"];
@@ -14,6 +17,8 @@ export const LIMITS = {
     maxFileBytes: 16 * 1024 * 1024,
     maxTotalBytes: 64 * 1024 * 1024,
     maxManifestBytes: 64 * 1024,
+    maxSignatureBytes: 16 * 1024,
+    maxUrlChars: 2048,
     maxPathBytes: 512,
     storage: {
         maxKeyBytes: 256,

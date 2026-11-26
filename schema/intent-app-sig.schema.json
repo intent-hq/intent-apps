@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/intent-hq/intent-apps/schema/intent-app-sig.schema.json",
+  "title": "Intent app detached signature (intent-app.sig)",
+  "description": "Reserved in M1: the shape is checked, the signature is never verified. At most 16 KiB of UTF-8 JSON at the bundle root. Not covered by the bundle hash.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sigVersion",
+    "algorithm",
+    "keyId",
+    "bundleHash",
+    "signature"
+  ],
+  "properties": {
+    "sigVersion": {
+      "const": 1
+    },
+    "algorithm": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]{1,32}$",
+      "description": "Reserved; \"ed25519\" is the only value defined."
+    },
+    "keyId": {
+      "type": "string",
+      "pattern": "^[\\u0020-\\u007e]{1,256}$"
+    },
+    "bundleHash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,1024}$",
+      "description": "base64url without padding."
+    }
+  }
+}
