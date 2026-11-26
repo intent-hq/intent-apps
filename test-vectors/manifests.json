@@ -1784,9 +1784,11 @@
         },
         "updateUrl": "https:///path"
       },
-      "valid": true,
+      "valid": false,
       "schemaValid": false,
-      "note": "WHATWG URL parsing reads https:///path as host \"path\", so the contract rule accepts it. The schema is stricter (no / right after https://)."
+      "note": "The WHATWG parser would repair https:///path to host \"path\"; the contract refuses a / right after https://.",
+      "code": "invalid-manifest",
+      "field": "/updateUrl"
     },
     {
       "name": "name-ideographic-space-blank",
@@ -1865,6 +1867,73 @@
       "valid": false,
       "code": "invalid-manifest",
       "field": "/name",
+      "schemaValid": false
+    },
+    {
+      "name": "update-url-backslash-after-scheme",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://\\example.com/app"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false,
+      "note": "The parser would treat \\ as /; the contract refuses any backslash."
+    },
+    {
+      "name": "update-url-backslash-in-path",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "updateUrl": "https://example.com\\app"
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/updateUrl",
+      "schemaValid": false
+    },
+    {
+      "name": "publisher-url-extra-slash",
+      "manifest": {
+        "manifestVersion": 1,
+        "id": "pomodoro-timer",
+        "name": "Pomodoro Timer",
+        "version": "1.0.0",
+        "permissions": {
+          "level": 2,
+          "features": [
+            "models",
+            "notifications"
+          ]
+        },
+        "publisher": {
+          "name": "P",
+          "url": "https:///example.com"
+        }
+      },
+      "valid": false,
+      "code": "invalid-manifest",
+      "field": "/publisher/url",
       "schemaValid": false
     }
   ]

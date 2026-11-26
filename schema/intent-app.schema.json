@@ -226,8 +226,8 @@
     "httpsUrl": {
       "type": "string",
       "maxLength": 2048,
-      "pattern": "^https://(?![/?#])[\\u0021-\\u007e]+$",
-      "description": "Printable ASCII https URL with a host, at most 2048 chars."
+      "pattern": "^https://(?![/?#])[\\u0021-\\u005b\\u005d-\\u007e]+$",
+      "description": "Printable ASCII https URL, at most 2048 chars, no backslash, no / right after https://, with a host."
     },
     "keyId": {
       "type": "string",

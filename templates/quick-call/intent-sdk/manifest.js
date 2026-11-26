@@ -32,8 +32,10 @@ const PUBLISHER_KEYS = new Set(["name", "url", "keyId"]);
 export const KEY_ID_RE = /^[\x21-\x7e]{1,256}$/;
 /**
  * An https URL (`publisher.url`, `updateUrl`): printable ASCII only, at most
- * 2048 chars, the lowercase prefix `https://`, and an absolute WHATWG URL
- * with a non-empty host. The string is stored as written.
+ * 2048 chars, the lowercase prefix `https://`, no backslash, no `/` right
+ * after `https://`, and an absolute WHATWG URL with a non-empty host. The
+ * last two rules refuse forms that the URL parser would repair. The string
+ * is stored as written.
  */
 export function httpsUrlProblem(v) {
     if (v.length < 1 || v.length > LIMITS.maxUrlChars)
@@ -42,6 +44,10 @@ export function httpsUrlProblem(v) {
         return "must be printable ASCII (no spaces)";
     if (!v.startsWith("https://"))
         return 'must start with "https://"';
+    if (v.includes("\\"))
+        return "must not contain a backslash";
+    if (v.charAt(8) === "/")
+        return 'must not have "/" right after "https://"';
     let u;
     try {
         u = new URL(v);
