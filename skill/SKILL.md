@@ -120,14 +120,22 @@ Check the console for CSP errors.
 
 ## 7. Install
 
-Validate first. Then install with the `app.install` method through the Intent workspace
-API, `dryRun: true` first:
+Validate first (`intent-apps validate <dir>`). Then install with `ws.appLibrary.install`
+in the Intent workspace API, `dryRun: true` first. `path` is the bundle folder relative to
+the workspace root; the tool always installs from your own workspace.
 
 ```js
-await ws.rpc("app.install", { workspaceId, path: "apps/pomodoro-timer", dryRun: true });
-await ws.rpc("app.install", { workspaceId, path: "apps/pomodoro-timer" });
-// after a change: { ..., replace: true } (the user must approve the new version)
+await ws.appLibrary.install({ path: "apps/pomodoro-timer", dryRun: true });
+const r = await ws.appLibrary.install({ path: "apps/pomodoro-timer" });
+// r.app: { id, name, version, bundleHash, permissions, approval, ... }; r.nextStep says what the user must do
+// after a change: { path, replace: true } (the user must approve the new version)
 ```
+
+`ws.appLibrary.list()` and `ws.appLibrary.get(appId)` read the library, and
+`ws.help("appLibrary")` has the full reference. A refusal starts with its code, for
+example `invalid-manifest: ... {"field":"/name"}`, `invalid-bundle`, `path-not-found` or
+`app-exists` (add `replace: true`). If `ws.appLibrary` is undefined, Intent is older: ask
+the user to install the folder from the app library.
 
 Agents cannot approve an app or open it. Tell the user to open the app library in
 Intent, review the permissions and approve. Every change to any file gives a new
