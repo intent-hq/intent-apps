@@ -1,0 +1,7 @@
+{
+  "manifestVersion": 1,
+  "id": "hello",
+  "name": "Hello",
+  "version": "1.0.0",
+  "permissions": { "level": 1 }
+}

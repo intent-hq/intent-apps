@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quick Call</title>
+    <link rel="icon" href="icon.png" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <img src="icon.png" alt="" width="28" height="28" />
+      <h1 id="app-name">Quick Call</h1>
+      <span id="mock-badge" class="badge" hidden title="window.intent is missing, so the SDK uses its mock bridge">Mock bridge</span>
+    </header>
+
+    <main>
+      <form id="ask-form">
+        <div class="row">
+          <label>Provider
+            <select id="provider" name="provider"></select>
+          </label>
+          <label>Model
+            <select id="model" name="model"></select>
+          </label>
+        </div>
+        <label>System prompt (optional)
+          <input id="system" name="system" type="text" placeholder="You answer in one short paragraph." />
+        </label>
+        <label>Prompt
+          <textarea id="prompt" name="prompt" rows="5" required placeholder="Ask anything"></textarea>
+        </label>
+        <div class="row actions">
+          <button id="ask" type="submit">Ask</button>
+          <span id="status" role="status"></span>
+        </div>
+      </form>
+
+      <section aria-labelledby="answer-title">
+        <h2 id="answer-title">Answer</h2>
+        <pre id="answer" aria-live="polite"></pre>
+        <p id="answer-meta" class="meta"></p>
+      </section>
+
+      <section aria-labelledby="history-title">
+        <h2 id="history-title">Recent prompts</h2>
+        <ul id="history"></ul>
+      </section>
+    </main>
+  </body>
+</html>
